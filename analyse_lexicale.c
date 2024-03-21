@@ -30,7 +30,9 @@ void ajouter_caractere(char *s, char c);
 Nature_Caractere nature_caractere(char c);
 int est_separateur(char c);
 int est_chiffre(char c);
+int est_point(char c);
 int est_symbole(char c);
+int est_lettre(char c);
 void reconnaitre_lexeme();
 
 /* --------------------------------------------------------------------- */
@@ -71,6 +73,58 @@ void arreter()
 
 /* --------------------------------------------------------------------- */
 
+void tranfo_chaine_nature()
+{
+   if (strcmp(lexeme_en_cours.chaine, "exp") == 0 || strcmp(lexeme_en_cours.chaine, "e") == 0)
+   {
+      lexeme_en_cours.nature = EXP;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "pi") == 0)
+   {
+      lexeme_en_cours.nature = NOMBRE;
+      lexeme_en_cours.val = 3.141593;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "cos") == 0)
+   {
+      lexeme_en_cours.nature = COS;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "sin") == 0)
+   {
+      lexeme_en_cours.nature = SIN;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "tan") == 0)
+   {
+      lexeme_en_cours.nature = TAN;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "plus") == 0)
+   {
+      lexeme_en_cours.nature = PLUS;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "mul") == 0)
+   {
+      lexeme_en_cours.nature = MUL;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "div") == 0)
+   {
+      lexeme_en_cours.nature = DIV;
+      return;
+   }
+   if (strcmp(lexeme_en_cours.chaine, "moins") == 0)
+   {
+      lexeme_en_cours.nature = MOINS;
+      return;
+   }
+}
+
+/* --------------------------------------------------------------------- */
+
 // reconnaissance d'un nouveau lexeme
 // etat initial : le caractere courant est soit separateur
 //                soit le 1er caractere d'un lexeme
@@ -83,9 +137,15 @@ void reconnaitre_lexeme()
 {
    typedef enum
    {
-      E_INIT
+      E_INIT,
+      E_ENTIER,
+      E_FLOTTANT,
+      E_CHAINE,
+      E_FIN
    } Etat_Automate;
    Etat_Automate etat = E_INIT;
+   int cpt_float = 10;
+   int cpt_par = 0;
 
    // on commence par lire et ignorer les separateurs
    while (est_separateur(caractere_courant()))
@@ -96,7 +156,175 @@ void reconnaitre_lexeme()
    lexeme_en_cours.chaine[0] = '\0';
 
    // on utilise ensuite un automate pour reconnaitre et construire le prochain lexeme
-   
+
+   while (etat != E_FIN)
+   {
+
+      switch (etat)
+      {
+
+      case E_INIT: // etat initial
+
+         switch (nature_caractere(caractere_courant()))
+         {
+
+         // Si fin de séquence
+         case C_FIN_SEQUENCE:
+            lexeme_en_cours.nature = FIN_SEQUENCE;
+            etat = E_FIN;
+            break;
+
+         // Si c'est un chiffre
+         case CHIFFRE:
+            lexeme_en_cours.nature = NOMBRE;
+            lexeme_en_cours.ligne = numero_ligne();
+            lexeme_en_cours.colonne = numero_colonne();
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            lexeme_en_cours.val = caractere_courant() - '0';
+            etat = E_ENTIER;
+            avancer_car();
+            break;
+
+         // Si c'est un symbole
+         case SYMBOLE:
+            lexeme_en_cours.ligne = numero_ligne();
+            lexeme_en_cours.colonne = numero_colonne();
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            switch (caractere_courant())
+            {
+            case '+':
+               lexeme_en_cours.nature = PLUS;
+               etat = E_FIN;
+               break;
+
+            case '-':
+               lexeme_en_cours.nature = MOINS;
+               etat = E_FIN;
+               break;
+
+            case '*':
+               lexeme_en_cours.nature = MUL;
+               etat = E_FIN;
+               break;
+
+            case '/':
+               lexeme_en_cours.nature = DIV;
+               etat = E_FIN;
+               break;
+
+            case '%':
+               lexeme_en_cours.nature = MOD;
+               etat = E_FIN;
+               break;
+
+            case '^':
+               lexeme_en_cours.nature = EXPOSANT;
+               etat = E_FIN;
+               break;
+
+            case '(':
+               lexeme_en_cours.nature = PARO;
+               etat = E_FIN;
+               break;
+
+            case ')':
+               lexeme_en_cours.nature = PARF;
+               etat = E_FIN;
+               break;
+
+            default:
+               printf("Erreur_Lexicale");
+               exit(0);
+               break;
+            }
+
+            avancer_car();
+            break;
+
+         // Si c'est une lettre
+         case LETTRE:
+            lexeme_en_cours.nature = CHAINE;
+            lexeme_en_cours.ligne = numero_ligne();
+            lexeme_en_cours.colonne = numero_colonne();
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            etat = E_CHAINE;
+            avancer_car();
+            break;
+
+         default:
+            printf("Erreur_Lexicale\n");
+            exit(0);
+            break;
+         }
+         break;
+
+      case E_ENTIER: // reconnaissance d'un entier
+         switch (nature_caractere(caractere_courant()))
+         {
+         case CHIFFRE:
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            lexeme_en_cours.val = lexeme_en_cours.val * 10 + caractere_courant() - '0';
+            etat = E_ENTIER;
+            avancer_car();
+            break;
+
+         case POINT:
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            etat = E_FLOTTANT;
+            avancer_car();
+            break;
+
+         default:
+            etat = E_FIN;
+            break;
+         }
+         break;
+
+      case E_FLOTTANT:
+         switch (nature_caractere(caractere_courant()))
+         {
+         case CHIFFRE:
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            lexeme_en_cours.val = lexeme_en_cours.val + ((float)(caractere_courant() - '0')) / ((float)(cpt_float));
+            cpt_float *= 10;
+            avancer_car();
+            break;
+
+         default:
+            etat = E_FIN;
+            break;
+         }
+         break;
+
+      case E_CHAINE: // reconnaissance d'un entier
+         switch (nature_caractere(caractere_courant()))
+         {
+         case LETTRE:
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            avancer_car();
+            break;
+
+         default:
+            etat = E_FIN;
+            break;
+         }
+         break;
+
+      case E_FIN: // etat final
+         break;
+
+      } // fin du switch(etat)
+   }    // fin du while (etat != fin)
+
+   if (lexeme_en_cours.nature == CHAINE)
+   {
+      tranfo_chaine_nature();
+      if (lexeme_en_cours.nature == CHAINE)
+      {
+         printf("Erreur_Lexicale: Chaine non défini\n");
+         exit(0);
+      }
+   }
 }
 
 /* --------------------------------------------------------------------- */
@@ -121,8 +349,12 @@ Nature_Caractere nature_caractere(char c)
       return C_FIN_SEQUENCE;
    if (est_chiffre(c))
       return CHIFFRE;
+   if (est_point(c))
+      return POINT;
    if (est_symbole(c))
       return SYMBOLE;
+   if (est_lettre(c))
+      return LETTRE;
    return ERREUR_CAR;
 }
 /* --------------------------------------------------------------------- */
@@ -141,6 +373,11 @@ int est_chiffre(char c)
    return c >= '0' && c <= '9';
 }
 
+int est_point(char c)
+{
+   return c == '.' || c == ',';
+}
+
 /* --------------------------------------------------------------------- */
 
 // vaut vrai ssi c designe un caractere correspondant a un symbole arithmetique
@@ -152,6 +389,8 @@ int est_symbole(char c)
    case '-':
    case '*':
    case '/':
+   case '%':
+   case '^':
    case '(':
    case ')':
       return 1;
@@ -163,13 +402,53 @@ int est_symbole(char c)
 
 /* --------------------------------------------------------------------- */
 
+// vaut vrai ssi c désigne un caractere qui est une lettre
+int est_lettre(char c)
+{
+   if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'))
+   {
+      return 1;
+   }
+   return 0;
+}
+
+/* --------------------------------------------------------------------- */
+
 // renvoie la chaine de caracteres correspondant a la nature du lexeme
 char *Nature_vers_Chaine(Nature_Lexeme nature)
 {
    switch (nature)
    {
-   case ENTIER:
-      return "ENTIER";
+   case NOMBRE:
+      return "NOMBRE";
+   case PLUS:
+      return "PLUS";
+   case MOINS:
+      return "MOINS";
+   case MUL:
+      return "MUL";
+   case DIV:
+      return "DIV";
+   case MOD:
+      return "MOD";
+   case EXPOSANT:
+      return "EXPOSANT";
+   case EXP:
+      return "EXP";
+   case COS:
+      return "COS";
+   case SIN:
+      return "SIN";
+   case TAN:
+      return "TAN";
+   case PARO:
+      return "PARO";
+   case PARF:
+      return "PARF";
+   case CHAINE:
+      return "CHAINE";
+   case FIN_SEQUENCE:
+      return "FIN_SEQUENCE";
    default:
       return "ERREUR";
    };
@@ -178,7 +457,8 @@ char *Nature_vers_Chaine(Nature_Lexeme nature)
 /* --------------------------------------------------------------------- */
 
 // affiche a l'ecran le lexeme l
-void afficher(Lexeme l)
+/**/
+void afficher_lex(Lexeme l)
 {
 
    switch (l.nature)
@@ -193,13 +473,12 @@ void afficher(Lexeme l)
       printf(", chaine = %s, ", l.chaine);
       switch (l.nature)
       {
-      case ENTIER:
-         printf("valeur = %d", l.valeur);
+      case NOMBRE:
+         printf("valeur = %f", l.val);
+         break;
       default:
          break;
-      };
+      }
       printf("]");
-   };
+   }
 }
-
-/* --------------------------------------------------------------------- */

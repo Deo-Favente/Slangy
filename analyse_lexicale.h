@@ -11,19 +11,18 @@
 
 typedef enum
 {
-   ERREUR_CAR,    // caractere incorrect
-   CHIFFRE,       // chiffre
-   SYMBOLE,       // symbole,
-   C_FIN_SEQUENCE // caractere de fin de sequence
+   ERREUR_CAR,     // caractere incorrect
+   CHIFFRE,        // chiffre
+   SYMBOLE,        // symbole,
+   C_FIN_SEQUENCE, // caractere de fin de sequence
+   GUILLEMETS,     // guillemets pour les chaines
 } Nature_Caractere;
 
 typedef enum
 {
-   FIN_SEQUENCE,
-   ENTIER, 
-   SEPARATEUR, 
-   INSTRUCTION,
-   FLECHE
+   DEBUT, // yo_wassup, debut du programme
+   FIN, // bye_bye, fin du programme
+   DEF, // bussin, définition de variable
 } Nature_Lexeme;
 
 typedef struct
@@ -73,4 +72,3 @@ void arreter();
 // e.f. : la machine sequentielle est arretee
 
 int est_separateur(char c);
-
