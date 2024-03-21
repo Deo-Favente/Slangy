@@ -92,12 +92,12 @@ void determiner_instruction()
    }
    if (strcmp(lexeme_en_cours.chaine, "lit") == 0)
    {
-      lexeme_en_cours.nature = INPUT;
+      lexeme_en_cours.nature = OUTPUT;
       return;
    }
    if (strcmp(lexeme_en_cours.chaine, "chill") == 0)
    {
-      lexeme_en_cours.nature = OUTPUT;
+      lexeme_en_cours.nature = INPUT;
       return;
    }
    if (strcmp(lexeme_en_cours.chaine, "->") == 0)
@@ -141,8 +141,8 @@ void reconnaitre_lexeme()
 
    while (etat != E_FIN)
    {
-      while (est_separateur(caractere_courant()))
-         avancer_car(); // on saute les separateurs
+      //while (est_separateur(caractere_courant()))
+      //   avancer_car(); // on saute les separateurs
 
       switch (etat)
       {
@@ -167,14 +167,16 @@ void reconnaitre_lexeme()
          case SYMBOLE:
             lexeme_en_cours.ligne = numero_ligne();
             lexeme_en_cours.colonne = numero_colonne();
-            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
             if (caractere_courant() == '"')
             {
                etat = E_CHAINE;
+               lexeme_en_cours.nature = CHAINE;
             }
             else
             {
                etat = E_INSTRUCTION;
+               lexeme_en_cours.nature = INSTRUCTION_INCONNUE;
+               ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
             }
             avancer_car();
             break;
@@ -182,10 +184,14 @@ void reconnaitre_lexeme()
          case LETTRE:
             lexeme_en_cours.ligne = numero_ligne();
             lexeme_en_cours.colonne = numero_colonne();
+            lexeme_en_cours.nature = INSTRUCTION_INCONNUE;
             ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
             etat = E_INSTRUCTION;
             avancer_car();
             break;
+         default:
+            printf("Erreur lexicale : caractère inattendu\n");
+            exit(0);
          }
          break;
       case E_ENTIER:
@@ -204,10 +210,57 @@ void reconnaitre_lexeme()
          break;
 
       case E_CHAINE:
+         switch (nature_caractere(caractere_courant()))
+         {
+         case SYMBOLE:
+            //ajouter_caractere(lexeme_en_cours.chaine, caractere_courant()); On ne met pas les guillemets dans la chaine
+            if (caractere_courant() == '"')
+            {
+               etat = E_FIN;
+            }
+            avancer_car();
+            
+            break;
+
+         default:
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            avancer_car();
+            break;
+         }
+         break;
+
+      case E_INSTRUCTION:
+         switch (nature_caractere(caractere_courant()))
+         {
+         case LETTRE:
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            avancer_car();
+            break;
+         case SYMBOLE:
+            if (caractere_courant() != '_') {
+               printf("Erreur lexicale : instruction mal formée\n");
+               printf("Lexeme en cours : %s\n", lexeme_en_cours.chaine);
+               exit(0);
+               break;
+            }
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            avancer_car();
+            break;
+         default:
+            etat = E_FIN;
+            //printf("Erreur lexicale : instruction innatendue\n");
+            //printf("Lexeme en cours : %s\n", lexeme_en_cours.chaine);
+            
+         }
+         break;
+      case E_FIN:
+         break;
 
       } // fin du switch (etat)
-      avancer_car();
    } // fin du while (etat != E_FIN)
+   if(lexeme_en_cours.nature == INSTRUCTION_INCONNUE){
+      determiner_instruction();
+   }
 } // fin de reconnaitre_lexeme
 
 /* --------------------------------------------------------------------- */
@@ -236,7 +289,7 @@ Nature_Caractere nature_caractere(char c)
       return SYMBOLE;
    if (est_lettre(c))
       return LETTRE;
-   return ERREUR_CAR;
+   return CAR_INCONNU;
 }
 /* --------------------------------------------------------------------- */
 

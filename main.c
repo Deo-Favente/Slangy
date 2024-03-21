@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 
     while (!fin_de_sequence())
     {
+        afficher_lex(lexeme_courant());
         avancer();
     };
     arreter(); // termine l'analyse lexicale
