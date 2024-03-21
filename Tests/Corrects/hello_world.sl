@@ -1,3 +1,3 @@
-yo wassup
+yo_wassup
 lit "Hello, World!"
-bye bye
+bye_bye

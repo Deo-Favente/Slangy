@@ -1,4 +1,4 @@
-all: calculette
+all: main
 
 essai_ast: ast_construction.o  ast_parcours.o  essai_ast.o  
 	gcc -g -Wall -o essai_ast ast_construction.o  ast_parcours.o  essai_ast.o
@@ -12,8 +12,8 @@ ast_parcours.o: ast_parcours.c type_ast.h
 essai_ast.o: essai_ast.c  ast_construction.h  ast_parcours.h  type_ast.h
 	gcc -g -Wall -c essai_ast.c
 
-calculette: analyse_syntaxique.o analyse_lexicale.o  lecture_caracteres.o  calculette.o ast_construction.o ast_parcours.o 
-	gcc -g -Wall -o calculette analyse_lexicale.o  lecture_caracteres.o  calculette.o analyse_syntaxique.o ast_construction.o ast_parcours.o 
+main: analyse_syntaxique.o analyse_lexicale.o  lecture_caracteres.o  main.o ast_construction.o ast_parcours.o 
+	gcc -g -Wall -o main analyse_lexicale.o  lecture_caracteres.o  main.o analyse_syntaxique.o ast_construction.o ast_parcours.o 
 
 analyse_lexicale.o: analyse_lexicale.c analyse_lexicale.h lecture_caracteres.h
 	gcc -g -Wall -c analyse_lexicale.c
@@ -24,9 +24,9 @@ analyse_syntaxique.o: analyse_syntaxique.c analyse_syntaxique.h analyse_lexicale
 lecture_caracteres.o: lecture_caracteres.h lecture_caracteres.c
 	gcc -g -Wall -c lecture_caracteres.c
 
-calculette.o: analyse_lexicale.h lecture_caracteres.h analyse_syntaxique.h 
-	gcc -g -Wall -c calculette.c
+main.o: analyse_lexicale.h lecture_caracteres.h analyse_syntaxique.h 
+	gcc -g -Wall -c main.c
 
 clean:
-	rm *.o calculette
+	rm *.o main
 

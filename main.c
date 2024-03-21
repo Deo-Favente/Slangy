@@ -10,13 +10,14 @@
 
 int main(int argc, char *argv[])
 {
-    int res = -1;
-    Ast A = (Ast) malloc (sizeof(NoeudAst));
+    //int res = -1;
+    //Ast A = (Ast) malloc (sizeof(NoeudAst));
     switch (argc)
     {
     case 1:
         // demarre l'analyse lexicale et syntaxique sur stdin
-        analyser(argv[1], &A);
+        demarrer("stdin");
+        /*
         res = evaluation(A);
         if (res != -1)
         {
@@ -25,10 +26,12 @@ int main(int argc, char *argv[])
             afficher_ast(A);
             printf("\n");
         }
+        */
         break;
     case 2:
         // demarre l'analyse lexicale et syntaxique sur le fichier transmis en argument
-        analyser(argv[1], &A);
+        demarrer(argv[1]);
+        /*
         res = evaluation(A);
         if (res != -1)
         {
@@ -38,6 +41,7 @@ int main(int argc, char *argv[])
             printf("\n");
         }
         break;
+        */
     default:
         printf("nombre d'arguments incorrects !\n");
         exit(1);
@@ -45,7 +49,7 @@ int main(int argc, char *argv[])
 
     while (!fin_de_sequence())
     {
-        // afficher(lexeme_courant());
+        afficher_lex(lexeme_courant());
         avancer();
     };
     arreter(); // termine l'analyse lexicale

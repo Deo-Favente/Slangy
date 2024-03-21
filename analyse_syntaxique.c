@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h>
 
 #include "analyse_lexicale.h"
@@ -159,3 +159,4 @@ void analyser(char *nom_fichier, Ast *A)
         exit(0);
     }
 }
+*/

@@ -11,18 +11,25 @@
 
 typedef enum
 {
-   ERREUR_CAR,     // caractere incorrect
-   CHIFFRE,        // chiffre
-   SYMBOLE,        // symbole,
-   C_FIN_SEQUENCE, // caractere de fin de sequence
-   GUILLEMETS,     // guillemets pour les chaines
+   ERREUR_CAR,    // caractere incorrect
+   CHIFFRE,       // chiffre
+   LETTRE,        // lettre
+   SYMBOLE,       // symbole,
+   C_FIN_SEQUENCE // caractere de fin de sequence
 } Nature_Caractere;
 
 typedef enum
 {
-   DEBUT, // yo_wassup, debut du programme
-   FIN, // bye_bye, fin du programme
-   DEF, // bussin, définition de variable
+   DEBUT,                // yo_wassup, debut du programme
+   FIN,                  // bye_bye, fin du programme
+   DEF,                  // bussin, définition de variable
+   INPUT,                // lit, lecture d'une variable
+   OUTPUT,               // chill, ecriture d'une variable
+   FIN_SEQUENCE,         // fin de la sequence de lexemes
+   ENTIER,               // entier
+   FLECHE,               // fleche
+   INSTRUCTION_INCONNUE, // instruction pas encore reconnue
+   CHAINE
 } Nature_Lexeme;
 
 typedef struct
@@ -31,10 +38,10 @@ typedef struct
    unsigned int ligne;   // numero de ligne
    unsigned int colonne; // numero de colonne
    char chaine[256];     // chaine de caracteres
-   int valeur;           // valeur d'un entier
+   int val;              // valeur d'un entier
 } Lexeme;
 
-void afficher_lexeme(Lexeme l);
+void afficher_lex(Lexeme l);
 
 void demarrer(char *nom_fichier);
 // e.i. : indifferent
@@ -43,7 +50,7 @@ void demarrer(char *nom_fichier);
 //        fin_de_sequence <=> lexeme_courant.nature = FIN_SEQUENCE
 //        (non fin_de_sequence) => lexeme courant est le premier
 //        lexeme de la sequence
-//        l'exception Erreur_Lexicale est levee en cas d'erreur
+//        l'exception Erreur lexicale est levee en cas d'erreur
 
 void avancer();
 // pre-condition : la machine sequentielle est demarree
@@ -52,7 +59,7 @@ void avancer();
 //        et (non lexeme_courant.nature = FIN_SEQUENCE)
 // e.f. : fin_de_sequence <=> lexeme_courant.nature = FIN_SEQUENCE
 //        (non fin_de_sequence) => lexeme_courant est le lexeme i+1
-//        l'exception Erreur_Lexicale est levee en cas d'erreur
+//        l'exception Erreur lexicale est levee en cas d'erreur
 
 Lexeme lexeme_courant();
 // pre-condition : la machine sequentielle est demarree

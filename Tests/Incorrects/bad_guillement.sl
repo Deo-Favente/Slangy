@@ -1,4 +1,4 @@
 yo_wassup
-bussin x -> coucou
+bussin x -> "bussin
 lit x
 bye_bye
