@@ -204,7 +204,7 @@ void reconnaitre_lexeme()
             break;
 
          default:
-            printf("Erreur lexicale : entier mal formé\n");
+            etat = E_FIN;
             break;
          }
          break;
@@ -220,6 +220,10 @@ void reconnaitre_lexeme()
             }
             avancer_car();
             
+            break;
+         case C_FIN_SEQUENCE:
+            printf("Erreur lexicale : chaine non terminée\n");
+            exit(0);
             break;
 
          default:
@@ -390,5 +394,6 @@ void afficher_lex(Lexeme l)
          break;
       }
       printf("]");
+      printf("\n");
    }
 }
