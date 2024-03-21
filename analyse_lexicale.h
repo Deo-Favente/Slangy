@@ -19,14 +19,11 @@ typedef enum
 
 typedef enum
 {
-   ENTIER,       // sequence de chiffres
-   PLUS,         // +
-   MOINS,        // -
-   MUL,          // *
-   DIV,          // /
-   PARO,         // (
-   PARF,         // )
-   FIN_SEQUENCE, // pseudo lexeme ajoute en fin de sequence
+   FIN_SEQUENCE,
+   ENTIER, 
+   SEPARATEUR, 
+   INSTRUCTION,
+   FLECHE
 } Nature_Lexeme;
 
 typedef struct

@@ -83,9 +83,7 @@ void reconnaitre_lexeme()
 {
    typedef enum
    {
-      E_INIT,
-      E_ENTIER,
-      E_FIN
+      E_INIT
    } Etat_Automate;
    Etat_Automate etat = E_INIT;
 
@@ -98,96 +96,7 @@ void reconnaitre_lexeme()
    lexeme_en_cours.chaine[0] = '\0';
 
    // on utilise ensuite un automate pour reconnaitre et construire le prochain lexeme
-
-   while (etat != E_FIN)
-   {
-      // afficher(lexeme_en_cours);
-
-      switch (etat)
-      {
-
-      case E_INIT: // etat initial
-
-         switch (nature_caractere(caractere_courant()))
-         {
-
-         case C_FIN_SEQUENCE:
-            lexeme_en_cours.nature = FIN_SEQUENCE;
-            etat = E_FIN;
-            break;
-
-         case CHIFFRE:
-            lexeme_en_cours.nature = ENTIER;
-            lexeme_en_cours.ligne = numero_ligne();
-            lexeme_en_cours.colonne = numero_colonne();
-            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-            lexeme_en_cours.valeur = caractere_courant() - '0';
-            etat = E_ENTIER;
-            avancer_car();
-            break;
-
-         case SYMBOLE:
-            lexeme_en_cours.ligne = numero_ligne();
-            lexeme_en_cours.colonne = numero_colonne();
-            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-            switch (caractere_courant())
-            {
-            case '+':
-               lexeme_en_cours.nature = PLUS;
-               etat = E_FIN;
-               break;
-            case '-':
-               lexeme_en_cours.nature = MOINS;
-               etat = E_FIN;
-               break;
-            case '*':
-               lexeme_en_cours.nature = MUL;
-               etat = E_FIN;
-               break;
-            case '/':
-               lexeme_en_cours.nature = DIV;
-               etat = E_FIN;
-               break;
-            case '(':
-               lexeme_en_cours.nature = PARO;
-               etat = E_FIN;
-               break;
-            case ')':
-               lexeme_en_cours.nature = PARF;
-               etat = E_FIN;
-               break;
-            default:
-               printf("Erreur_Lexicale\n");
-               exit(0);
-            };
-            avancer_car();
-            break;
-
-         default:
-            printf("Erreur_Lexicale\n");
-            exit(0);
-         };
-         break;
-
-      case E_ENTIER: // reconnaissance d'un entier
-         switch (nature_caractere(caractere_courant()))
-         {
-         case CHIFFRE:
-            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-            lexeme_en_cours.valeur = lexeme_en_cours.valeur * 10 + caractere_courant() - '0';
-            etat = E_ENTIER;
-            avancer_car();
-            break;
-
-         default:
-            etat = E_FIN;
-         };
-
-      case E_FIN: // etat final
-         break;
-
-      }; // fin du switch(etat)
-   };    // fin du while (etat != fin)
+   
 }
 
 /* --------------------------------------------------------------------- */
@@ -261,20 +170,6 @@ char *Nature_vers_Chaine(Nature_Lexeme nature)
    {
    case ENTIER:
       return "ENTIER";
-   case PLUS:
-      return "PLUS";
-   case MOINS:
-      return "MOINS";
-   case MUL:
-      return "MUL";
-   case DIV:
-      return "DIV";
-   case FIN_SEQUENCE:
-      return "FIN_SEQUENCE";
-   case PARO:
-      return "PARO";
-   case PARF:
-      return "PARF";
    default:
       return "ERREUR";
    };
