@@ -105,8 +105,7 @@ void determiner_instruction()
       lexeme_en_cours.nature = FLECHE;
       return;
    }
-   printf("%s", lexeme_en_cours.chaine);
-   printf("Erreur lexicale : instruction inconnue\n");
+   printf("Erreur lexicale : instruction \"%s \" inconnue\n", lexeme_en_cours.chaine);
    exit(0);
 }
 
@@ -135,110 +134,80 @@ void reconnaitre_lexeme()
 
    lexeme_en_cours.chaine[0] = '\0';
 
+   while (est_separateur(caractere_courant()))
+      avancer_car(); // on saute les separateurs
+
    // on utilise ensuite un automate pour reconnaitre et construire le prochain lexeme
 
    while (etat != E_FIN)
    {
-      
       while (est_separateur(caractere_courant()))
-         avancer_car();
+         avancer_car(); // on saute les separateurs
 
       switch (etat)
       {
-
-      case E_INIT: // etat initial
+      case E_INIT:
          switch (nature_caractere(caractere_courant()))
          {
-
-         // Si fin de séquence
          case C_FIN_SEQUENCE:
             lexeme_en_cours.nature = FIN_SEQUENCE;
             etat = E_FIN;
             break;
 
-         // Si c'est un chiffre
          case CHIFFRE:
-            lexeme_en_cours.nature = ENTIER;
             lexeme_en_cours.ligne = numero_ligne();
             lexeme_en_cours.colonne = numero_colonne();
             ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-            lexeme_en_cours.val = caractere_courant() - '0'; // conversion ascii -> entier
-            etat = E_FIN;
+            lexeme_en_cours.val = caractere_courant() - '0';
+            lexeme_en_cours.nature = ENTIER;
+            etat = E_ENTIER;
             avancer_car();
             break;
 
-         // Si c'est un symbole
          case SYMBOLE:
             lexeme_en_cours.ligne = numero_ligne();
             lexeme_en_cours.colonne = numero_colonne();
             ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-            avancer_car();
-            switch (caractere_courant())
+            if (caractere_courant() == '"')
             {
-            case '"':
-               lexeme_en_cours.nature = CHAINE;
                etat = E_CHAINE;
-               break;
-
-            default:
-               printf("Erreur lexicale : symbole inconnu\n");
-               exit(0);
-               break;
             }
-
-         // Si c'est une lettre
-         case LETTRE:
-            lexeme_en_cours.nature = INSTRUCTION_INCONNUE;
-            lexeme_en_cours.ligne = numero_ligne();
-            lexeme_en_cours.colonne = numero_colonne();
-
-            while (nature_caractere(caractere_courant()) != C_FIN_SEQUENCE && !est_separateur(caractere_courant()) && !est_symbole(caractere_courant()))
+            else
             {
-               ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-               avancer_car();
+               etat = E_INSTRUCTION;
             }
-
-            determiner_instruction();
+            avancer_car();
             break;
 
-         // Si c'est un caractère incorrect
-         case ERREUR_CAR:
-            printf("Erreur lexicale : caractere inconnu : \"%c\"\n", caractere_courant());
-            exit(0);
+         case LETTRE:
+            lexeme_en_cours.ligne = numero_ligne();
+            lexeme_en_cours.colonne = numero_colonne();
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            etat = E_INSTRUCTION;
+            avancer_car();
+            break;
+         }
+         break;
+      case E_ENTIER:
+         switch (nature_caractere(caractere_courant()))
+         {
+         case CHIFFRE:
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            lexeme_en_cours.val = lexeme_en_cours.val * 10 + caractere_courant() - '0';
+            avancer_car();
+            break;
+
+         default:
+            printf("Erreur lexicale : entier mal formé\n");
             break;
          }
          break;
 
       case E_CHAINE:
-         switch (nature_caractere(caractere_courant()))
-         {
-         case C_FIN_SEQUENCE:
-            printf("Erreur lexicale : guillemet fermant manquant\n");
-            exit(0);
-            break;
-         default:
-            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-            avancer_car();
-            if (caractere_courant() == '"')
-            {
-               ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
-               avancer_car();
-               etat = E_FIN;
-            } // Si pas de guillemet fermant, on continue de lire, la chaine n'est pas finie
-            break;
-         }
 
-      // Etat final
-      case E_FIN:
-         break;
-
-      // Erreur
-      default:
-         printf("Erreur lexicale : Lexeme inconnu\n");
-         exit(0);
-         break;
       } // fin du switch (etat)
-   }    // fin du while (etat != E_FIN)
+      avancer_car();
+   } // fin du while (etat != E_FIN)
 } // fin de reconnaitre_lexeme
 
 /* --------------------------------------------------------------------- */
@@ -305,7 +274,7 @@ int est_symbole(char c)
 // vaut vrai ssi c désigne un caractere qui est une lettre
 int est_lettre(char c)
 {
-   if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'))
+   if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '_')
    {
       return 1;
    }

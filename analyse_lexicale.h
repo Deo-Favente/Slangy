@@ -11,7 +11,7 @@
 
 typedef enum
 {
-   ERREUR_CAR,    // caractere incorrect
+   CAR_INCONNU,    // autre caractere
    CHIFFRE,       // chiffre
    LETTRE,        // lettre
    SYMBOLE,       // symbole,

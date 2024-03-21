@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
         }
         break;
         */
+        break;
     default:
         printf("nombre d'arguments incorrects !\n");
         exit(1);
@@ -49,7 +50,6 @@ int main(int argc, char *argv[])
 
     while (!fin_de_sequence())
     {
-        afficher_lex(lexeme_courant());
         avancer();
     };
     arreter(); // termine l'analyse lexicale
