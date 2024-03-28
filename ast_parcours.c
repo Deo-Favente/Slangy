@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "type_ast.h"
 
+/*
 void aff_operateur(TypeOperateur op){
 	switch (op) {
 		case N_PLUS:
@@ -63,4 +64,5 @@ int evaluation(Ast expr) {
 		}
 	return -1;
 }
+*/
 

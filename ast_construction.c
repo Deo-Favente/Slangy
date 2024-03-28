@@ -11,7 +11,7 @@ Ast creer_operation(TypeOperateur opr , Ast opde_gauche , Ast opde_droit)
       expr->operateur = opr;
       if (opde_gauche == NULL || opde_droit == NULL) {
          printf("ERREUR_EXPRESSION\n") ;
-	 exit(1) ;
+	 exit(3) ;
       } else {
          expr->gauche = opde_gauche;
          expr->droite = opde_droit;

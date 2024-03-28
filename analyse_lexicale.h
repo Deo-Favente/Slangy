@@ -29,7 +29,9 @@ typedef enum
    ENTIER,               // entier
    FLECHE,               // fleche
    INSTRUCTION_INCONNUE, // instruction pas encore reconnue
-   CHAINE
+   VARIABLE,             // variable
+   COMMENTAIRE,          // commentaire (TODO)
+   CHAINE               // chaine de caracteres
 } Nature_Lexeme;
 
 typedef struct

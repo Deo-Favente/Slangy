@@ -10,49 +10,41 @@
 
 int main(int argc, char *argv[])
 {
-    //int res = -1;
-    //Ast A = (Ast) malloc (sizeof(NoeudAst));
+    Ast A = (Ast) malloc (sizeof(NoeudAst));
     switch (argc)
     {
     case 1:
         // demarre l'analyse lexicale et syntaxique sur stdin
         demarrer("stdin");
-        /*
-        res = evaluation(A);
-        if (res != -1)
-        {
-            printf("Résultat : %d\n", res);
-            printf("L'arbre syntaxique abstrait est : \n");
-            afficher_ast(A);
-            printf("\n");
-        }
-        */
+        // demarre l'analyse lexicale et syntaxique sur stdin
+        analyser("stdin", &A);
+        
+        //printf("L'arbre syntaxique abstrait est : \n");
+        //afficher_ast(A);
+        printf("\n");
         break;
     case 2:
-        // demarre l'analyse lexicale et syntaxique sur le fichier transmis en argument
-        demarrer(argv[1]);
-        /*
-        res = evaluation(A);
-        if (res != -1)
-        {
-            printf("Résultat : %d\n", res);
-            printf("L'arbre syntaxique abstrait est : \n");
-            afficher_ast(A);
-            printf("\n");
-        }
+        // demarre l'analyse lexicale et syntaxique sur le fichier passe en argument
+        //demarrer(argv[1]);
+        // demarre l'analyse lexicale et syntaxique sur le fichier passe en argument
+        
+        analyser(argv[1], &A);
+
+        //printf("L'arbre syntaxique abstrait est : \n");
+        //afficher_ast(A);
+        printf("\n");
         break;
-        */
-        break;
+
     default:
         printf("nombre d'arguments incorrects !\n");
-        exit(1);
+        exit(2);
     };
-
     while (!fin_de_sequence())
     {
         afficher_lex(lexeme_courant());
         avancer();
     };
+
     arreter(); // termine l'analyse lexicale
     return 0;
 }

@@ -105,8 +105,14 @@ void determiner_instruction()
       lexeme_en_cours.nature = FLECHE;
       return;
    }
-   printf("Erreur lexicale : instruction \"%s \" inconnue\n", lexeme_en_cours.chaine);
-   exit(0);
+   if (strcmp(lexeme_en_cours.chaine, "mewing") == 0)
+   {
+      lexeme_en_cours.nature = COMMENTAIRE;
+      return;
+   }
+   lexeme_en_cours.nature = VARIABLE;
+   //printf("Erreur lexicale : instruction \"%s \" inconnue\n", lexeme_en_cours.chaine);
+   //exit(0);
 }
 
 /* --------------------------------------------------------------------- */
@@ -127,6 +133,7 @@ void reconnaitre_lexeme()
       E_CHAINE,
       E_ENTIER,
       E_INSTRUCTION,
+      E_COMMENTAIRE,
       E_FIN
    } Etat_Automate;
 
@@ -141,8 +148,6 @@ void reconnaitre_lexeme()
 
    while (etat != E_FIN)
    {
-      //while (est_separateur(caractere_courant()))
-      //   avancer_car(); // on saute les separateurs
 
       switch (etat)
       {
@@ -172,7 +177,11 @@ void reconnaitre_lexeme()
                etat = E_CHAINE;
                lexeme_en_cours.nature = CHAINE;
             }
-            else
+            else if (caractere_courant() == '@')
+            {
+               etat = E_COMMENTAIRE;
+               lexeme_en_cours.nature = COMMENTAIRE;
+            }else         
             {
                etat = E_INSTRUCTION;
                lexeme_en_cours.nature = INSTRUCTION_INCONNUE;
@@ -190,7 +199,7 @@ void reconnaitre_lexeme()
             avancer_car();
             break;
          default:
-            printf("Erreur lexicale : caractère inattendu\n");
+            printf("Erreur lexicale : caractère non reconnu.\n");
             exit(0);
          }
          break;
@@ -213,16 +222,16 @@ void reconnaitre_lexeme()
          switch (nature_caractere(caractere_courant()))
          {
          case SYMBOLE:
-            //ajouter_caractere(lexeme_en_cours.chaine, caractere_courant()); On ne met pas les guillemets dans la chaine
+            // ajouter_caractere(lexeme_en_cours.chaine, caractere_courant()); On ne met pas les guillemets dans la chaine
             if (caractere_courant() == '"')
             {
                etat = E_FIN;
             }
             avancer_car();
-            
+
             break;
          case C_FIN_SEQUENCE:
-            printf("Erreur lexicale : chaine non terminée\n");
+            printf("Erreur lexicale : chaine non terminée.\n");
             exit(0);
             break;
 
@@ -241,8 +250,9 @@ void reconnaitre_lexeme()
             avancer_car();
             break;
          case SYMBOLE:
-            if (caractere_courant() != '_') {
-               printf("Erreur lexicale : instruction mal formée\n");
+            if (caractere_courant() != '_')
+            {
+               printf("Erreur lexicale : instruction mal formée.\n");
                printf("Lexeme en cours : %s\n", lexeme_en_cours.chaine);
                exit(0);
                break;
@@ -252,17 +262,28 @@ void reconnaitre_lexeme()
             break;
          default:
             etat = E_FIN;
-            //printf("Erreur lexicale : instruction innatendue\n");
-            //printf("Lexeme en cours : %s\n", lexeme_en_cours.chaine);
-            
+            // printf("Erreur lexicale : instruction innatendue\n");
+            // printf("Lexeme en cours : %s\n", lexeme_en_cours.chaine);
          }
          break;
+      case E_COMMENTAIRE:
+         if (caractere_courant() != '\n')
+         {
+            ajouter_caractere(lexeme_en_cours.chaine, caractere_courant());
+            avancer_car();
+         }
+         else
+         {
+            etat = E_FIN;
+         }
+
       case E_FIN:
          break;
 
       } // fin du switch (etat)
-   } // fin du while (etat != E_FIN)
-   if(lexeme_en_cours.nature == INSTRUCTION_INCONNUE){
+   }    // fin du while (etat != E_FIN)
+   if (lexeme_en_cours.nature == INSTRUCTION_INCONNUE)
+   {
       determiner_instruction();
    }
 } // fin de reconnaitre_lexeme
@@ -319,6 +340,7 @@ int est_symbole(char c)
    switch (c)
    {
    case '"':
+   case '@':
       return 1;
 
    default:
@@ -331,7 +353,7 @@ int est_symbole(char c)
 // vaut vrai ssi c désigne un caractere qui est une lettre
 int est_lettre(char c)
 {
-   if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '_')
+   if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '_' || c == '-' || c== '>')
    {
       return 1;
    }
@@ -363,6 +385,12 @@ char *Nature_vers_Chaine(Nature_Lexeme nature)
       return "FLECHE";
    case CHAINE:
       return "CHAINE";
+   case INSTRUCTION_INCONNUE:
+      return "INSTRUCTION_INCONNUE";
+   case VARIABLE:
+      return "VARIABLE";
+   case COMMENTAIRE:
+      return "COMMENTAIRE";
    default:
       return "ERREUR";
    };

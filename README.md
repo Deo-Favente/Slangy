@@ -91,20 +91,27 @@ Explications : Ce programme déclare une variable x et l'incrémente de 1 à cha
 ### Grammaire
 
 **Structure générale**
-programme -> 'yo_wassup' instructions 'bye_bye'
+programme -> DEBUT instructions FIN FIN_SEQUENCE
 
 **Instructions**
-instructions -> instrcution instructions
+instructions -> instruction instructions
 instructions -> instruction
 
 **Entrées / Sorties / Commentaires**
-instruction -> 'lit' expression
-// instruction -> 'chill' variable
-instruction -> 'mewing' expression
+instruction -> OUTPUT expression
+instruction -> INPUT variable
+instruction -> epsilon
+
+instruction -> COMMENTAIRE string A FAIRE
+//string -> [a-zA-Z0-9!@#$%^&*()_+]
 
 **Déclaration de variable**
-instruction -> 'bussin' variable = expression
-variable -> [a-zA-Z_]+
+instruction -> DEF variable FLECHE expression
+variable -> VARIABLE
+
+expression -> ENTIER
+expression -> CHAINE
+
 
 ### Prochains ajouts grammaire
 
